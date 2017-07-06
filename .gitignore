@@ -1,0 +1,40 @@
+# =============== #
+# Unity generated #
+# =============== #
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/Assets/AssetStoreTools*
+UnityGenerated/
+/Assets/LocalAssets/
+# ===================================== #
+# Visual Studio / MonoDevelop generated #
+# ===================================== #
+ExportedObj/
+*.svd
+*.userprefs
+*.csproj
+*.pidb
+*.suo
+*.sln
+*.user
+*.unityproj
+*.booproj
+*.tmp
+# ===================================== #
+# Unity3D generated meta files #
+# ===================================== #
+*.pidb.meta
+# ======================================= #
+# Unity3D Generated File On Crash Reports #
+# ======================================= #
+sysinfo.txt
+CSharp70Support/compilation\.log
+
+Assets/Plugins/Sirenix/Assemblies/Editor/GeneratedOdinEditors\.dll
+
+Assets/Plugins/Sirenix/Assemblies/Editor/GeneratedOdinEditors\.dll\.mdb
+
+Assets/LocalAddons/
