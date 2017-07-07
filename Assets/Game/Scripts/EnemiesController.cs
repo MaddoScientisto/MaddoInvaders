@@ -11,6 +11,8 @@ namespace MaddoInvaders.Scripts
 {
     public class EnemiesController : MonoBehaviour
     {
+        private int _score = 0;
+
         [SerializeField]
         private int _rows = 4;
 
@@ -60,6 +62,16 @@ namespace MaddoInvaders.Scripts
 
         private System.Random _sysRandom;
 
+        public float RightBoundaryPosition
+        {
+            get { return _rightBoundaryPosition; }
+        }
+
+        public float LeftBoundaryPosition
+        {
+            get { return _leftBoundaryPosition; }
+        }
+
         private void Awake()
         {
             Random.InitState(DateTime.Now.Second);
@@ -69,7 +81,7 @@ namespace MaddoInvaders.Scripts
             _movementDirection = MovementDirections.Right;
 
             Timing.RunCoroutine(Move());
-            Timing.RunCoroutine(Shoot());
+            //Timing.RunCoroutine(Shoot());
         }
 
 
@@ -118,13 +130,13 @@ namespace MaddoInvaders.Scripts
             }
         }
 
-        private IEnumerator<float> Shoot()
+        private void Shoot()
         {
-            while (_spawnedEnemies.Any())
+            if (_spawnedEnemies.Any())
             {
-                float seconds = Random.Range(_minShootTime, _maxShootTime);
-                Debug.Log("Waiting " + seconds + " seconds");
-                yield return Timing.WaitForSeconds(seconds);
+                //float seconds = Random.Range(_minShootTime, _maxShootTime);
+                //Debug.Log("Waiting " + seconds + " seconds");
+                //yield return Timing.WaitForSeconds(seconds);
 
 
                 int r = _sysRandom.Next(0, _columns - 1);
@@ -153,6 +165,8 @@ namespace MaddoInvaders.Scripts
 
         private IEnumerator<float> Move()
         {
+            int shootTimer = 2;
+
             MovementDirections currentDirection = _movementDirection;
             float currentTickRate = GetTickRate();
             while (currentTickRate > 0)
@@ -192,6 +206,11 @@ namespace MaddoInvaders.Scripts
 
                 yield return Timing.WaitForSeconds(currentTickRate);
 
+                if (shootTimer-- <= 0)
+                {
+                    shootTimer = 2;
+                    Shoot();
+                }
             }
 
         }
@@ -223,6 +242,8 @@ namespace MaddoInvaders.Scripts
         {
             _spawnedEnemies.Remove(enemy);
             Destroy(enemy.gameObject);
+
+            _score += enemy.Points;
         }
     }
 }

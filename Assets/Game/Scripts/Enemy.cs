@@ -21,6 +21,15 @@ namespace Assets.Game.Scripts
         [SerializeField]
         private Projectile _projectilePrefab;
 
+        [SerializeField]
+        private int _points = 10;
+
+        public int Points
+        {
+            get { return _points; }
+        }
+
+
         private void Awake()
         {
             _controller = GetComponentInParent<EnemiesController>();

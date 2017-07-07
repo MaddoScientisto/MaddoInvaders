@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MaddoInvaders.Scripts;
 using MovementEffects;
 using UnityEngine;
 
@@ -24,23 +25,30 @@ namespace Assets.Game.Scripts
         [SerializeField]
         private float _projectileCoolDown = 1f;
 
-        private bool _canFire = true;
+        private EnemiesController _enemiesController;
+
+        //private bool _canFire = true;
 
         private void Start()
         {
-
+            _enemiesController = FindObjectOfType<EnemiesController>();
         }
 
         private Projectile _projectile;
 
 
-
+        private float _inputDirection = 0;
         private void Update()
         {
-            if (Input.GetAxisRaw(_horizontalAxis) != 0)
+            _inputDirection = Input.GetAxisRaw(_horizontalAxis);
+
+
+            if ((_inputDirection < 0 && this.transform.position.x > _enemiesController.LeftBoundaryPosition) ||
+                (_inputDirection > 0 && this.transform.position.x < _enemiesController.RightBoundaryPosition))
             {
                 this.transform.Translate(new Vector3(Input.GetAxisRaw(_horizontalAxis) * _baseSpeed * Time.deltaTime, 0));
             }
+
 
             if (Input.GetButtonDown(_fireButton))
             {
