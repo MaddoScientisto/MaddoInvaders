@@ -27,6 +27,9 @@ namespace Assets.Game.Scripts
             set { _affiliation = value; }
         }
 
+        [SerializeField]
+        private LayerMask _solidMask;
+
         public enum Affiliations
         {
             Player,
@@ -58,5 +61,24 @@ namespace Assets.Game.Scripts
             yield return Timing.WaitForSeconds(_lifeTime);
             Destroy(this.gameObject);
         }
+
+        private void OnTriggerEnter2D(Collider2D collision)
+        {
+            if (MaddoUnityTools.UsefulTools.UsefulTools.IsLayerInMask(collision.gameObject.layer, _solidMask))
+            {
+                Destroy(this.gameObject);
+            }
+
+            else if (collision.gameObject.layer.Equals(this.gameObject.layer))
+            {
+                Projectile p = collision.gameObject.GetComponent<Projectile>();
+                if (p && p.Affiliation != this.Affiliation)
+                {
+                    Destroy(this.gameObject);
+                    Destroy(p.gameObject);
+                }
+            }
+        }
+
     }
 }

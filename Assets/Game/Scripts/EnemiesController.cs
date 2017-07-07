@@ -1,9 +1,11 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Assets.Game.Scripts;
 using MovementEffects;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace MaddoInvaders.Scripts
 {
@@ -26,6 +28,8 @@ namespace MaddoInvaders.Scripts
 
         private List<Enemy> _spawnedEnemies;
 
+        private List<List<Enemy>> _enemyColumns;
+
         [SerializeField]
         private float _horizontalSpacing = 1;
 
@@ -41,6 +45,12 @@ namespace MaddoInvaders.Scripts
         [SerializeField]
         private float _baseTickRate = 10f;
 
+        [SerializeField]
+        private float _minShootTime = 2f;
+
+        [SerializeField]
+        private float _maxShootTime = 4f;
+
         public enum MovementDirections
         {
             Left, Right
@@ -48,12 +58,18 @@ namespace MaddoInvaders.Scripts
 
         private MovementDirections _movementDirection;
 
+        private System.Random _sysRandom;
+
         private void Awake()
         {
+            Random.InitState(DateTime.Now.Second);
+            _sysRandom = new System.Random(DateTime.Now.Second);
+
             GenerateEnemies();
             _movementDirection = MovementDirections.Right;
 
             Timing.RunCoroutine(Move());
+            Timing.RunCoroutine(Shoot());
         }
 
 
@@ -67,9 +83,16 @@ namespace MaddoInvaders.Scripts
             {
                 Debug.LogError("Not enough enemy prefabs");
             }
+            _enemyColumns = new List<List<Enemy>>(_columns);
+
+            for (int i = 0; i < _columns; i++)
+            {
+                _enemyColumns.Add(new List<Enemy>());
+            }
 
             for (int i = 0; i < _rows; i++)
             {
+                //List<Enemy> columnList = new List<Enemy>();
                 for (int j = 0; j < _columns; j++)
                 {
                     Enemy enemy;
@@ -85,14 +108,38 @@ namespace MaddoInvaders.Scripts
                     }
 
                     _spawnedEnemies.Add(enemy);
-
+                    //                    columnList[j].Add(enemy);
                     enemy.transform.localPosition = new Vector2(j * _horizontalSpacing, i * _verticalSpacing);
 
+                    _enemyColumns[j].Add(enemy);
                 }
 
-
+                //_enemyColumns.Add(columnList);
             }
         }
+
+        private IEnumerator<float> Shoot()
+        {
+            while (_spawnedEnemies.Any())
+            {
+                float seconds = Random.Range(_minShootTime, _maxShootTime);
+                Debug.Log("Waiting " + seconds + " seconds");
+                yield return Timing.WaitForSeconds(seconds);
+
+
+                int r = _sysRandom.Next(0, _columns - 1);
+                Debug.Log("Shooting column: " + r);
+                var enemy = _enemyColumns[r].FirstOrDefault(x => x != null);
+
+                if (enemy)
+                {
+                    enemy.Shoot();
+                }
+
+            }
+
+        }
+
 
         private void Update()
         {

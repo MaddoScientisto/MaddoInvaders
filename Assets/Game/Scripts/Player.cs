@@ -31,6 +31,8 @@ namespace Assets.Game.Scripts
 
         }
 
+        private Projectile _projectile;
+
 
 
         private void Update()
@@ -48,18 +50,29 @@ namespace Assets.Game.Scripts
 
         private void Fire()
         {
-            if (!_canFire) return;
-            var projectile = Instantiate(_projectilePrefab, this.transform.position, Quaternion.identity);
-            projectile.Affiliation = Projectile.Affiliations.Player;
-            Timing.RunCoroutine(FireCoolDown().CancelWith(this.gameObject));
+            if (_projectile) return;
+            _projectile = Instantiate(_projectilePrefab, this.transform.position, Quaternion.identity);
+            _projectile.Affiliation = Projectile.Affiliations.Player;
+            //Timing.RunCoroutine(FireCoolDown().CancelWith(this.gameObject));
         }
 
-        private IEnumerator<float> FireCoolDown()
+        private void OnTriggerEnter2D(Collider2D collision)
         {
-            _canFire = false;
-            yield return Timing.WaitForSeconds(_projectileCoolDown);
-
-            _canFire = true;
+            var p = collision.GetComponent<Projectile>();
+            if (p && p.Affiliation == Projectile.Affiliations.Enemy)
+            {
+                this.gameObject.SetActive(false);
+            }
         }
+
+
+
+        //private IEnumerator<float> FireCoolDown()
+        //{
+        //    _canFire = false;
+        //    yield return Timing.WaitForSeconds(_projectileCoolDown);
+
+        //    _canFire = true;
+        //}
     }
 }

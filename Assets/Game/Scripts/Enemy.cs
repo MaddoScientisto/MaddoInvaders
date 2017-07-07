@@ -18,6 +18,9 @@ namespace Assets.Game.Scripts
         [SerializeField]
         private LayerMask _hurtMask;
 
+        [SerializeField]
+        private Projectile _projectilePrefab;
+
         private void Awake()
         {
             _controller = GetComponentInParent<EnemiesController>();
@@ -54,5 +57,10 @@ namespace Assets.Game.Scripts
         }
 
 
+        public void Shoot()
+        {
+            var projectile = Instantiate(_projectilePrefab, this.transform.position, Quaternion.identity);
+            projectile.Affiliation = Projectile.Affiliations.Enemy;
+        }
     }
 }
