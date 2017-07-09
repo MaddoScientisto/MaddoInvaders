@@ -69,7 +69,9 @@ namespace Assets.Game.Scripts
             var p = collision.GetComponent<Projectile>();
             if (p && p.Affiliation == Projectile.Affiliations.Enemy)
             {
+                _enemiesController.GameOver();
                 this.gameObject.SetActive(false);
+
             }
         }
 

@@ -5,6 +5,8 @@ using System.Linq;
 using Assets.Game.Scripts;
 using MovementEffects;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
 namespace MaddoInvaders.Scripts
@@ -53,6 +55,14 @@ namespace MaddoInvaders.Scripts
         [SerializeField]
         private float _maxShootTime = 4f;
 
+        [SerializeField]
+        private Text _scoreText;
+
+        [SerializeField]
+        private GameObject _gameOverText;
+
+        private bool _isPlaying = false;
+
         public enum MovementDirections
         {
             Left, Right
@@ -81,7 +91,7 @@ namespace MaddoInvaders.Scripts
             _movementDirection = MovementDirections.Right;
 
             Timing.RunCoroutine(Move());
-            //Timing.RunCoroutine(Shoot());
+            UpdateScore(_score);
         }
 
 
@@ -93,7 +103,7 @@ namespace MaddoInvaders.Scripts
 
             if (!_enemyPrefabs.Any())
             {
-                Debug.LogError("Not enough enemy prefabs");
+                // ???
             }
             _enemyColumns = new List<List<Enemy>>(_columns);
 
@@ -104,7 +114,6 @@ namespace MaddoInvaders.Scripts
 
             for (int i = 0; i < _rows; i++)
             {
-                //List<Enemy> columnList = new List<Enemy>();
                 for (int j = 0; j < _columns; j++)
                 {
                     Enemy enemy;
@@ -120,13 +129,11 @@ namespace MaddoInvaders.Scripts
                     }
 
                     _spawnedEnemies.Add(enemy);
-                    //                    columnList[j].Add(enemy);
                     enemy.transform.localPosition = new Vector2(j * _horizontalSpacing, i * _verticalSpacing);
 
                     _enemyColumns[j].Add(enemy);
                 }
 
-                //_enemyColumns.Add(columnList);
             }
         }
 
@@ -134,13 +141,7 @@ namespace MaddoInvaders.Scripts
         {
             if (_spawnedEnemies.Any())
             {
-                //float seconds = Random.Range(_minShootTime, _maxShootTime);
-                //Debug.Log("Waiting " + seconds + " seconds");
-                //yield return Timing.WaitForSeconds(seconds);
-
-
                 int r = _sysRandom.Next(0, _columns - 1);
-                Debug.Log("Shooting column: " + r);
                 var enemy = _enemyColumns[r].FirstOrDefault(x => x != null);
 
                 if (enemy)
@@ -155,7 +156,10 @@ namespace MaddoInvaders.Scripts
 
         private void Update()
         {
-
+            if (!_isPlaying && Input.GetButtonDown("Jump"))
+            {
+                SceneManager.LoadScene(0); // Restart
+            }
         }
 
         private float GetTickRate()
@@ -165,6 +169,8 @@ namespace MaddoInvaders.Scripts
 
         private IEnumerator<float> Move()
         {
+            _isPlaying = true;
+
             int shootTimer = 2;
 
             MovementDirections currentDirection = _movementDirection;
@@ -187,7 +193,6 @@ namespace MaddoInvaders.Scripts
                         if (enemy.transform.position.x > _rightBoundaryPosition)
                         {
                             _movementDirection = MovementDirections.Left;
-                            //enemy.Move(new Vector2(0, _verticalSpeed));
 
                         }
                     }
@@ -197,7 +202,6 @@ namespace MaddoInvaders.Scripts
                         if (enemy.transform.position.x < _leftBoundaryPosition)
                         {
                             _movementDirection = MovementDirections.Right;
-                            //enemy.Move(new Vector2(0, _verticalSpeed));
 
                         }
                     }
@@ -211,7 +215,13 @@ namespace MaddoInvaders.Scripts
                     shootTimer = 2;
                     Shoot();
                 }
+                if (!_isPlaying)
+                {
+                    currentTickRate = 0; // Exit if player is dead
+                }
             }
+            _isPlaying = false;
+            if (_gameOverText) { _gameOverText.SetActive(true); }
 
         }
 
@@ -244,6 +254,20 @@ namespace MaddoInvaders.Scripts
             Destroy(enemy.gameObject);
 
             _score += enemy.Points;
+            UpdateScore(_score);
+        }
+
+        private void UpdateScore(int score)
+        {
+            if (_scoreText != null)
+            {
+                _scoreText.text = score.ToString();
+            }
+        }
+
+        public void GameOver()
+        {
+            _isPlaying = false;
         }
     }
 }
